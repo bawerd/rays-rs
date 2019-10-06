@@ -1,14 +1,44 @@
-use std::ops::{Add, Sub, Neg, Mul};
+use std::ops::{Add, Sub, Neg, Mul, Div};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Tuple {
     x: f32, 
     y: f32, 
     z: f32, 
     w: f32
 }
+
+#[allow(dead_code)]
+impl Tuple {
+    fn magnitude(&self) -> f32 {
+        let mag = self.x.powi(2) + self.y.powi(2) + self.z.powi(2);
+        mag.sqrt()
+    }
+
+    fn normalize(&self) -> Vector {
+        vector(self.x / self.magnitude(), self.y / self.magnitude(), self.z / self.magnitude())  
+    }
+
+    fn dot(&self, rhs: Vector) -> f32 {
+        self.x * rhs.x +
+        self.y * rhs.y +
+        self.z * rhs.z +
+        self.w * rhs.w 
+    }
+
+    fn cross(&self, rhs: Vector) -> Vector {
+        vector(
+            self.y * rhs.z - self.z * rhs.y,
+            self.z * rhs.x - self.x * rhs.z,
+            self.x * rhs.y - self.y * rhs.x
+        )
+    }
+}
+
 pub type Point = Tuple;
 pub type Vector = Tuple;
+
+//impl Eq for Tuple {}
 
 impl Add for Tuple {
     type Output = Tuple;
@@ -27,11 +57,45 @@ impl Sub for Tuple {
 }
 
 impl Neg for Tuple {
-     type Output = Tuple;
+     type Output = Self;
 
-    fn neg(self) -> Tuple {
+    fn neg(self) -> Self {
       tuple(-self.x, -self.y, -self.z, -self.w)
     }   
+}
+
+impl Mul<f32> for Tuple {
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self {
+        tuple(self.x * rhs, self.y * rhs, self.z * rhs, self.w * rhs)
+    }
+}
+
+impl Mul<i32> for Tuple {
+    type Output = Self;
+
+    fn mul(self, rhs: i32) -> Self {
+        let mul = rhs as f32;
+        tuple(self.x * mul, self.y * mul, self.z * mul, self.w * mul)
+    }
+}
+
+impl Div<f32> for Tuple {
+    type Output = Self;
+
+    fn div(self, rhs: f32) -> Self {
+        tuple(self.x / rhs, self.y / rhs, self.z / rhs, self.w / rhs)
+    }
+}
+
+impl Div<i32> for Tuple {
+    type Output = Self;
+
+    fn div(self, rhs: i32) -> Self {
+        let div = rhs as f32; 
+        tuple(self.x / div, self.y / div, self.z / div, self.w / div)
+    }
 }
 
 pub fn tuple(x: f32, y:f32, z:f32, w:f32 ) -> Tuple {
@@ -49,6 +113,11 @@ pub fn vector(x: f32, y:f32, z:f32) -> Vector {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /* Compare floating point numbers */
+    fn approx_equal(a: f32, b: f32) -> bool {
+        (a - b).abs() <= std::f32::EPSILON
+    }
 
     #[test]
     fn tuple_is_a_point() {
@@ -140,5 +209,78 @@ mod tests {
         /* Negating a tuple */
         let a = tuple(1.0, -2.0, 3.0, -4.0);
         assert_eq!(-a, tuple(-1.0, 2.0, -3.0, 4.0));
+    }
+
+    #[test]
+    fn multiply_tuple_by_scalar() {
+        /* Multiplying a tuple by a scalar */
+        let a = tuple(1.0, -2.0, 3.0, -4.0);
+        assert_eq!(a * 3.5, tuple(3.5, -7.0, 10.5, -14.0));
+        /* also able to use integer scalar */
+        assert_eq!(a * 3, tuple(3.0, -6.0, 9.0, -12.0));
+    }
+
+    #[test]
+    fn multiply_tuple_by_fraction() {
+        /* Multiplying a tuple by a fraction */
+        let a = tuple(1.0, -2.0, 3.0, -4.0);
+        assert_eq!(a * 0.5, tuple(0.5, -1.0, 1.5, -2.0));
+    }
+
+    #[test]
+    fn divide_tuple_by_scalar() {
+        /* Multiplying a tuple by a fraction */
+        let a = tuple(1.0, -2.0, 3.0, -4.0);
+        assert_eq!(a / 2, tuple(0.5, -1.0, 1.5, -2.0));
+        assert_eq!(a / 2.0, tuple(0.5, -1.0, 1.5, -2.0));
+    }
+
+    #[test]
+    fn computes_magnitude_of_vector() {
+        /* Computing the magnitude of vectors */
+        let v = vector(1.0, 0.0, 0.0);
+        assert_eq!(v.magnitude(), 1.0);
+
+        let v = vector(0.0, 1.0, 0.0);
+        assert_eq!(v.magnitude(), 1.0);
+
+        let v = vector(0.0, 0.0, 1.0);
+        assert_eq!(v.magnitude(), 1.0);
+
+        let v = vector(1.0, 2.0, 3.0);
+        assert_eq!(v.magnitude(), 14.0_f32.sqrt());
+
+        let v = vector(-1.0, -2.0, -3.0);
+        assert_eq!(v.magnitude(), 14.0_f32.sqrt());
+    }
+
+    #[test]
+    fn normalize_vector() {
+        /* Normalizing vectors */
+        let v = vector(4.0, 0.0, 0.0);
+        assert_eq!(v.normalize(), vector(1.0, 0.0, 0.0));
+
+        let v = vector(1.0, 2.0, 3.0);
+        let div = 14.0_f32.sqrt();
+        assert_eq!(v.normalize(), vector(1.0/div, 2.0/div, 3.0/div));
+        assert_eq!(true, approx_equal(v.normalize().magnitude(), 1.0));
+    }
+
+    #[test]
+    fn compute_dot_product() {
+        /* The dot product of two tuples */
+        let a = vector(1.0, 2.0, 3.0);
+        let b = vector(2.0, 3.0, 4.0);
+    
+        assert_eq!(a.dot(b), 20.0);
+    }
+
+    #[test]
+    fn compute_cross_product() {
+        /* The cross product of two vectors */
+        let a = vector(1.0, 2.0, 3.0);
+        let b = vector(2.0, 3.0, 4.0);
+    
+        assert_eq!(a.cross(b), vector(-1.0, 2.0, -1.0));
     }
 }
