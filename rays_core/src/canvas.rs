@@ -12,28 +12,25 @@ pub struct Canvas {
 }
 
 impl Canvas {
-    pub fn new(width: u32, height: u32) -> Canvas {
+    pub fn new(width: u32, height: u32, initial_color: Option<Color>) -> Canvas {
         Canvas {
             width,
             height,
             size: (width * height),
-            pixels: vec![Color::new_black(); (width * height) as usize]
+            pixels: vec![initial_color.unwrap_or(Color::new_black()); (width * height) as usize]
         }
     }
 
+
     fn pixel_pos(&self, x: u32, y: u32) -> u32 {
-        if y == 0 { 
-            cmp::max(0, x) 
-        } else { 
-            (y * self.width) + x 
-        }
+        (y * self.width) + cmp::min(x, self.width)  
     }
 
     pub fn write_pixel(&mut self, x: u32, y: u32, color: Color) {
         let mut pos;
 
         pos = self.pixel_pos(x, y);
-        if pos >= self.size { pos = self.size-1 };
+        if pos > self.size { pos = self.size-1 };
 
         self.pixels[pos as usize] = color;
     }
@@ -42,7 +39,7 @@ impl Canvas {
         let pos;
 
         pos = self.pixel_pos(x, y);
-        if pos >= self.size { return None }
+        if pos > self.size { return None }
 
         Some(self.pixels[pos as usize])
     }
@@ -52,12 +49,33 @@ impl Canvas {
     } 
 
     pub fn to_ppm(&self) -> String {
+        const ROW_BREAK: usize = 70;
+        
         let header = format!("P3\n{} {}\n255\n", self.width, self.height);
-        let mut body = String::new();
 
-        for pixel in self.pixels.iter() {
+        let mut body = String::with_capacity(self.pixels.len() * 4 + header.len());
+        let mut row_length = 0;
+
+        for (i, pixel) in self.pixels.iter().enumerate() {
             let (r,g,b) = Self::get_clamped_values(pixel, 0.0, 255.0);
-            body.push_str(&format!("{} {} {} ", r, g, b)[..]);
+            let triad = &format!("{} {} {} ", r, g, b)[..];
+            
+            row_length += triad.len();
+
+            if row_length % ROW_BREAK < row_length {
+                body.truncate(body.len()-1); 
+                body.push('\n');
+                body.push_str(triad);
+                row_length = 0;
+            } else {
+                body.push_str(triad);
+            }
+
+            // End with newline
+            if i == self.pixels.len()-1 { 
+                body.truncate(body.len()-1); 
+                body.push('\n');
+            }
         }        
 
         header + &body 
@@ -80,7 +98,7 @@ mod tests {
 
     #[test]
     fn creating_a_canvas() {
-        let c = Canvas::new(10, 20);
+        let c = Canvas::new(10, 20, None);
         let black = Color::new_black();
 
         assert!(c.pixels.iter().any(|&color| color == black));
@@ -88,7 +106,7 @@ mod tests {
     
     #[test]
     fn writing_pixels_to_canvas() {
-        let mut c = Canvas::new(10, 20);
+        let mut c = Canvas::new(10, 20, None);
         let red = Color::new(1.0, 0.0, 0.0);
 
         // Handle overflow silently when calling write_pixel 
@@ -102,7 +120,7 @@ mod tests {
 
     #[test]
     fn constructing_ppm_header() {
-        let c = Canvas::new(5, 3);
+        let c = Canvas::new(5, 3, None);
 
         let ppm = c.to_ppm();
 
@@ -113,7 +131,7 @@ mod tests {
 
     #[test]
     fn constructing_ppm_pixel_data() {
-        let mut c = Canvas::new(5, 3);
+        let mut c = Canvas::new(5, 3, None);
         let c1 = Color::new(1.5, 0.0, 0.0);
         let c2 = Color::new(0.0, 0.5, 0.0);
         let c3 = Color::new(-0.5, 0.0, 1.0);
@@ -123,9 +141,30 @@ mod tests {
         c.write_pixel(4, 2, c3);
 
         let ppm = c.to_ppm();
+        let ppm_test = r#"P3
+5 3
+255
+255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 255
+"#;
 
-        println!("{}", ppm);
-        println!("{:?}", c);
-        //assert_eq!(ppm, ppm_test);
+        assert_eq!(ppm, ppm_test);
     }
+    
+    #[test]
+    fn splitting_long_lines_in_ppm() {
+        let c = Canvas::new(10, 2, Some(Color::new(1.0, 0.8, 0.6)));
+        let ppm = c.to_ppm();
+        let ppm_test = r#"P3
+10 2
+255
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204 153
+255 204 153 255 204 153 255 204 153
+"#;
+
+        assert_eq!(ppm, ppm_test);
+    }
+
 }
