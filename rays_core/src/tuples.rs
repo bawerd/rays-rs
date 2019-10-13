@@ -2,31 +2,31 @@ use std::ops::{Add, Sub, Neg, Mul, Div};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Tuple {
-    x: f32, 
-    y: f32, 
-    z: f32, 
-    w: f32
+    pub x: f32, 
+    pub y: f32, 
+    pub z: f32, 
+    pub w: f32
 }
 
 #[allow(dead_code)]
 impl Tuple {
-    fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> f32 {
         let mag = self.x.powi(2) + self.y.powi(2) + self.z.powi(2);
         mag.sqrt()
     }
 
-    fn normalize(&self) -> Vector {
+    pub fn normalize(&self) -> Vector {
         vector(self.x / self.magnitude(), self.y / self.magnitude(), self.z / self.magnitude())  
     }
 
-    fn dot(&self, rhs: Vector) -> f32 {
+    pub fn dot(&self, rhs: Vector) -> f32 {
         self.x * rhs.x +
         self.y * rhs.y +
         self.z * rhs.z +
         self.w * rhs.w 
     }
 
-    fn cross(&self, rhs: Vector) -> Vector {
+    pub fn cross(&self, rhs: Vector) -> Vector {
         vector(
             self.y * rhs.z - self.z * rhs.y,
             self.z * rhs.x - self.x * rhs.z,

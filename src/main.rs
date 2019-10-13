@@ -1,14 +1,17 @@
-use rays_core::{ Canvas, Color };
+use rays::projectile;
+use rays_core::Canvas;
+
+use std::io::prelude::*;
+use std::fs::File;
+use std::path::Path;
 
 fn main() {
-    let mut c = Canvas::new(5, 3);
-    let c1 = Color::new(1.5, 0.0, 0.0);
-    let c2 = Color::new(0.0, 0.5, 0.0);
-    let c3 = Color::new(-0.5, 0.0, 1.0);
-    
-    c.write_pixel(0, 0, c1);
-    c.write_pixel(2, 1, c2);
-    c.write_pixel(4, 2, c3);
+    let mut c = Canvas::new(900, 500, None);
+    let mut file = File::create(&Path::new("./tmp/projectile.ppm")).unwrap();
 
-    println!("{}", c.to_ppm());
+    projectile::simulate_projectile(&mut c);
+    
+    file.write_all(c.to_ppm().as_bytes());
+
+    println!("image saved in tmp/projectile.ppm");
 }
