@@ -2,3 +2,4 @@
 **/**/target
 **/*.rs.bk
 code_from_site/
+tmp/

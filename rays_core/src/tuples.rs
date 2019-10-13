@@ -98,7 +98,7 @@ impl Div<i32> for Tuple {
     }
 }
 
-pub fn tuple(x: f32, y:f32, z:f32, w:f32 ) -> Tuple {
+fn tuple(x: f32, y:f32, z:f32, w:f32 ) -> Tuple {
     Tuple { x, y, z, w }
 }
 
@@ -263,7 +263,7 @@ mod tests {
         let v = vector(1.0, 2.0, 3.0);
         let div = 14.0_f32.sqrt();
         assert_eq!(v.normalize(), vector(1.0/div, 2.0/div, 3.0/div));
-        assert_eq!(true, approx_equal(v.normalize().magnitude(), 1.0));
+        assert!(approx_equal(v.normalize().magnitude(), 1.0));
     }
 
     #[test]
