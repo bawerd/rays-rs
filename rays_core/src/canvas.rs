@@ -29,7 +29,7 @@ impl Canvas {
     pub fn write_pixel(&mut self, x: u32, y: u32, color: Color) {
         let mut pos;
 
-        pos = self.pixel_pos(x, y);
+        pos = self.pixel_pos(x, self.height - y);
         if pos > self.size { pos = self.size-1 };
 
         self.pixels[pos as usize] = color;
