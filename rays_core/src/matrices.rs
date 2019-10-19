@@ -3,6 +3,7 @@ use std::cmp::PartialEq;
 
 use crate::util::array_approx_equal;
 
+// Macro for implementing square matrices
 macro_rules! mat_impl {
     ($mat_name:ident, $size:expr, $type:ident) => {
 
@@ -46,8 +47,8 @@ impl Mul for Matrix4x4 {
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut m = [[0.; 4]; 4];
-         for row in 0..4 {
-            for col in 0..4 {
+        for row in 0..m.len() {
+            for col in 0..len() {
                 m[row][col] = self.m[row][0] * rhs.m[0][col] +
                             self.m[row][1] * rhs.m[1][col] +
                             self.m[row][2] * rhs.m[2][col] +
