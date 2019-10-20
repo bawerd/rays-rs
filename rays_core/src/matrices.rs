@@ -2,12 +2,13 @@ use std::ops::{Index, Mul};
 use std::cmp::PartialEq;
 
 use crate::util::array_approx_equal;
+use crate::tuples::*;
 
 // Macro for implementing square matrices
 macro_rules! mat_impl {
     ($mat_name:ident, $size:expr, $type:ident) => {
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone)]
         pub struct $mat_name {
             size: usize,
             m: [[$type; $size]; $size]
@@ -28,27 +29,53 @@ macro_rules! mat_impl {
         }
 
         impl $mat_name {
-            pub fn new(matrix: [[$type; $size]; $size]) -> $mat_name {
-                $mat_name {
+            pub fn new(matrix: [[$type; $size]; $size]) -> Self {
+                Self {
                     size: $size,
                     m: matrix
+                }
+            }
+
+            pub fn transpose(&self) -> Self {
+                let mut m: [[$type; $size]; $size] =  [[0 as $type; $size]; $size];
+
+                for (r, row) in self.m.iter().enumerate() {
+                    for c in 0..m.len() {
+                        m[c][r] = row[c];
+                    }
+                } 
+               
+                Self {
+                    size: $size,
+                    m: m
                 }
             }
         }       
     };
 }
 
-mat_impl!(Matrix4x4, 4, f64);
 mat_impl!(Matrix3x3, 3, f64);
 mat_impl!(Matrix2x2, 2, f64);
+
+mat_impl!(Matrix4x4, 4, f64);
+
+impl Matrix4x4 {
+    pub fn identity() -> Self {
+        Self { size: 4, m: [[1., 0., 0., 0.],
+                            [0., 1., 0., 0.],
+                            [0., 0., 1., 0.],
+                            [0., 0., 0., 1.]] }
+    }
+}
 
 impl Mul for Matrix4x4 {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut m = [[0.; 4]; 4];
+        
         for row in 0..m.len() {
-            for col in 0..len() {
+            for col in 0..m.len() {
                 m[row][col] = self.m[row][0] * rhs.m[0][col] +
                             self.m[row][1] * rhs.m[1][col] +
                             self.m[row][2] * rhs.m[2][col] +
@@ -56,9 +83,36 @@ impl Mul for Matrix4x4 {
             }
         }
 
-        Matrix4x4 { size: 4, m: m }
+
+       Matrix4x4 { size: 4, m: m }
     }
 }
+
+impl Mul<Tuple> for Matrix4x4 {
+    type Output = Tuple;
+
+    fn mul(self, rhs: Tuple) -> Self::Output {
+        let mut t = tuple(0., 0., 0., 0.);
+
+        // dot product of each row and the tuple as a one column matrix
+        for (i, row) in self.m.iter().enumerate() {
+            let val = row[0] * rhs.x + 
+                    row[1] * rhs.y +
+                    row[2] * rhs.z +
+                    row[3] * rhs.w;
+            
+            match i {
+                0 => t.x = val,
+                1 => t.y = val,
+                2 => t.z = val,
+                3 => t.w = val,
+                _ => ()
+            }
+        }
+        t
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -170,5 +224,67 @@ mod tests {
         ]);        
 
         assert_eq!(a * b, expected_result);
+    }
+
+
+   #[test]
+    fn multiply_matrix_with_tuple() {
+        let a = Matrix4x4::new([
+            [1., 2., 3., 4.],
+            [2., 4., 4., 2.],
+            [8., 6., 4., 1.],
+            [0., 0., 0., 1.]
+        ]);   
+
+        let b = tuple(1., 2., 3., 1.) ;  
+
+        let expected_result = tuple(18., 24., 33., 1.);
+
+        assert_eq!(a * b, expected_result);
+    }
+
+   #[test]
+    fn multiply_with_identity_yields_same_matrix() {
+        let a = Matrix4x4::new([
+            [0., 1., 2., 4.],
+            [1., 2., 4., 8.],
+            [2., 4., 8., 16.],
+            [4., 8., 16., 32.]
+        ]);   
+
+        let identity = Matrix4x4::identity();  
+
+        assert_eq!(a.clone() * identity, a);
+    }
+
+   #[test]
+    fn multiply_tuple_with_identity_yields_same_tuple() {
+        let a = tuple(1., 2., 3., 4.);
+        let identity = Matrix4x4::identity();  
+
+        assert_eq!(identity * a.clone(), a);
+    }
+
+
+   #[test]
+    fn transpose_matrix() {
+        let a = Matrix4x4::new([
+            [0., 9., 3., 0.],
+            [9., 8., 0., 8.],
+            [1., 8., 5., 3.],
+            [0., 0., 5., 8.]
+        ]);   
+
+        let expected_result = Matrix4x4::new([
+            [0., 9., 1., 0.],
+            [9., 8., 8., 0.],
+            [3., 0., 5., 5.],
+            [0., 8., 3., 8.]
+        ]);        
+
+        assert_eq!(a.transpose(), expected_result);
+
+        // The transpose of the identity, is the identity
+        assert_eq!(Matrix4x4::identity().transpose(), Matrix4x4::identity());
     }
 }

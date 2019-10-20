@@ -2,15 +2,15 @@ use std::ops::{Add, Sub, Neg, Mul, Div};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Tuple {
-    pub x: f32, 
-    pub y: f32, 
-    pub z: f32, 
-    pub w: f32
+    pub x: f64, 
+    pub y: f64, 
+    pub z: f64, 
+    pub w: f64
 }
 
 #[allow(dead_code)]
 impl Tuple {
-    pub fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> f64 {
         let mag = self.x.powi(2) + self.y.powi(2) + self.z.powi(2);
         mag.sqrt()
     }
@@ -19,7 +19,7 @@ impl Tuple {
         vector(self.x / self.magnitude(), self.y / self.magnitude(), self.z / self.magnitude())  
     }
 
-    pub fn dot(&self, rhs: Vector) -> f32 {
+    pub fn dot(&self, rhs: Vector) -> f64 {
         self.x * rhs.x +
         self.y * rhs.y +
         self.z * rhs.z +
@@ -64,10 +64,10 @@ impl Neg for Tuple {
     }   
 }
 
-impl Mul<f32> for Tuple {
+impl Mul<f64> for Tuple {
     type Output = Self;
 
-    fn mul(self, rhs: f32) -> Self {
+    fn mul(self, rhs: f64) -> Self {
         tuple(self.x * rhs, self.y * rhs, self.z * rhs, self.w * rhs)
     }
 }
@@ -76,15 +76,15 @@ impl Mul<i32> for Tuple {
     type Output = Self;
 
     fn mul(self, rhs: i32) -> Self {
-        let mul = rhs as f32;
+        let mul = rhs as f64;
         tuple(self.x * mul, self.y * mul, self.z * mul, self.w * mul)
     }
 }
 
-impl Div<f32> for Tuple {
+impl Div<f64> for Tuple {
     type Output = Self;
 
-    fn div(self, rhs: f32) -> Self {
+    fn div(self, rhs: f64) -> Self {
         tuple(self.x / rhs, self.y / rhs, self.z / rhs, self.w / rhs)
     }
 }
@@ -93,20 +93,20 @@ impl Div<i32> for Tuple {
     type Output = Self;
 
     fn div(self, rhs: i32) -> Self {
-        let div = rhs as f32; 
+        let div = rhs as f64; 
         tuple(self.x / div, self.y / div, self.z / div, self.w / div)
     }
 }
 
-fn tuple(x: f32, y:f32, z:f32, w:f32 ) -> Tuple {
+pub fn tuple(x: f64, y:f64, z:f64, w:f64 ) -> Tuple {
     Tuple { x, y, z, w }
 }
 
-pub fn point(x: f32, y:f32, z:f32) -> Point {
+pub fn point(x: f64, y:f64, z:f64) -> Point {
     Point { x, y, z, w: 1.0 }
 }
 
-pub fn vector(x: f32, y:f32, z:f32) -> Vector {
+pub fn vector(x: f64, y:f64, z:f64) -> Vector {
     Tuple { x, y, z, w: 0.0 }
 }
 
@@ -115,8 +115,8 @@ mod tests {
     use super::*;
 
     /* Compare floating point numbers */
-    fn approx_equal(a: f32, b: f32) -> bool {
-        (a - b).abs() <= std::f32::EPSILON
+    fn approx_equal(a: f64, b: f64) -> bool {
+        (a - b).abs() <= std::f64::EPSILON
     }
 
     #[test]
@@ -248,10 +248,10 @@ mod tests {
         assert_eq!(v.magnitude(), 1.0);
 
         let v = vector(1.0, 2.0, 3.0);
-        assert_eq!(v.magnitude(), 14.0_f32.sqrt());
+        assert_eq!(v.magnitude(), 14.0_f64.sqrt());
 
         let v = vector(-1.0, -2.0, -3.0);
-        assert_eq!(v.magnitude(), 14.0_f32.sqrt());
+        assert_eq!(v.magnitude(), 14.0_f64.sqrt());
     }
 
     #[test]
@@ -261,7 +261,7 @@ mod tests {
         assert_eq!(v.normalize(), vector(1.0, 0.0, 0.0));
 
         let v = vector(1.0, 2.0, 3.0);
-        let div = 14.0_f32.sqrt();
+        let div = 14.0_f64.sqrt();
         assert_eq!(v.normalize(), vector(1.0/div, 2.0/div, 3.0/div));
         assert!(approx_equal(v.normalize().magnitude(), 1.0));
     }
