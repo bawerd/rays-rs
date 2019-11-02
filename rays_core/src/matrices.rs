@@ -4,6 +4,7 @@ use std::cmp::PartialEq;
 use crate::util::array_approx_equal;
 use crate::tuples::*;
 
+
 // Macro for implementing square matrices
 macro_rules! mat_impl {
     ($mat_name:ident, $size:expr, $type:ident) => {
@@ -54,10 +55,43 @@ macro_rules! mat_impl {
     };
 }
 
-mat_impl!(Matrix3x3, 3, f64);
-mat_impl!(Matrix2x2, 2, f64);
 
+
+
+// create basic square matrices
+mat_impl!(Matrix2x2, 2, f64); 
+mat_impl!(Matrix3x3, 3, f64);
 mat_impl!(Matrix4x4, 4, f64);
+
+
+impl Matrix2x2 {
+    pub fn determinant(&self) -> f64 {
+        (self.m[0][0] * self.m[1][1]) - (self.m[0][1] * self.m[1][0])
+    }
+}
+
+impl Matrix3x3 {
+    pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix2x2 {
+       let mut m: [[f64; 2]; 2] = [[0.; 2]; 2];
+       let mut r_i = 0;
+       let mut c_i = 0;
+
+       for (ri, row) in self.m.iter().enumerate() {
+            if ri == remove_row { continue; }
+            
+            for (ci, val) in row.iter().enumerate() {
+                if ci == remove_col { continue; }
+                m[r_i][c_i] = *val;
+                c_i += 1;
+            }
+        
+           r_i += 1;
+           c_i = 0;
+        }
+
+       Matrix2x2::new(m)
+    }
+}
 
 impl Matrix4x4 {
     pub fn identity() -> Self {
@@ -65,6 +99,28 @@ impl Matrix4x4 {
                             [0., 1., 0., 0.],
                             [0., 0., 1., 0.],
                             [0., 0., 0., 1.]] }
+    }
+
+    // TODO: need to make this general, right now I am stumped and just copy-paste here.
+    pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix3x3 {
+       let mut m: [[f64; 3]; 3] = [[0.; 3]; 3];
+       let mut r_i = 0;
+       let mut c_i = 0;
+
+       for (ri, row) in self.m.iter().enumerate() {
+            if ri == remove_row { continue; }
+            
+            for (ci, val) in row.iter().enumerate() {
+                if ci == remove_col { continue; }
+                m[r_i][c_i] = *val;
+                c_i += 1;
+            }
+        
+           r_i += 1;
+           c_i = 0;
+        }
+
+       Matrix3x3::new(m)
     }
 }
 
@@ -112,6 +168,7 @@ impl Mul<Tuple> for Matrix4x4 {
         t
     }
 }
+
 
 
 #[cfg(test)]
@@ -284,7 +341,52 @@ mod tests {
 
         assert_eq!(a.transpose(), expected_result);
 
-        // The transpose of the identity, is the identity
+        // The transpose of the identity, equals the identity
         assert_eq!(Matrix4x4::identity().transpose(), Matrix4x4::identity());
+    }
+
+    #[test]
+    fn determinant_of_2x2_matrix() {
+        let a = Matrix2x2::new([
+            [1., 5.],
+            [-3., 2.]
+        ]);
+
+        assert_eq!(a.determinant(), 17.);
+    }
+
+    #[test]
+    fn submatrix_of_3x3_matrix() {
+        let a = Matrix3x3::new([
+            [1., 5., 0.],
+            [-3., 2., 7.],
+            [0., 6., -3.]
+        ]);
+
+        let b = Matrix2x2::new([
+            [-3., 2.],
+            [0., 6.]
+        ]);
+
+        assert_eq!(a.submatrix(0,2), b);
+    }
+
+
+    #[test]
+    fn submatrix_of_4x4_matrix() {
+        let a = Matrix4x4::new([
+            [-6., 1., 1., 6.],
+            [-8., 5., 8., 6.],
+            [-1., 0., 8., 2.],
+            [-7., 1., -1., 1.]
+        ]);
+
+        let b = Matrix3x3::new([
+            [-6., 1., 6.],
+            [-8., 8., 6.],
+            [-7., -1., 1.]
+        ]);
+
+        assert_eq!(a.submatrix(2,1), b);
     }
 }
