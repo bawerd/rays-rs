@@ -51,6 +51,28 @@ macro_rules! mat_impl {
                     m: m
                 }
             }
+
+            #[allow(dead_code)]
+            fn gen_submatrix(&self, remove_row: usize, remove_col: usize) -> [[$type; $size-1]; $size-1] {
+                let mut m: [[$type; $size-1]; $size-1] =  [[0 as $type; $size-1]; $size-1];
+                let mut r_i = 0;
+                let mut c_i = 0;
+
+                for (ri, row) in self.m.iter().enumerate() {
+                        if ri == remove_row { continue; }
+                        
+                        for (ci, val) in row.iter().enumerate() {
+                            if ci == remove_col { continue; }
+                            m[r_i][c_i] = *val;
+                            c_i += 1;
+                        }
+                    
+                    r_i += 1;
+                    c_i = 0;
+                    }
+
+                m
+            }
         }       
     };
 }
@@ -72,24 +94,8 @@ impl Matrix2x2 {
 
 impl Matrix3x3 {
     pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix2x2 {
-       let mut m: [[f64; 2]; 2] = [[0.; 2]; 2];
-       let mut r_i = 0;
-       let mut c_i = 0;
-
-       for (ri, row) in self.m.iter().enumerate() {
-            if ri == remove_row { continue; }
-            
-            for (ci, val) in row.iter().enumerate() {
-                if ci == remove_col { continue; }
-                m[r_i][c_i] = *val;
-                c_i += 1;
-            }
-        
-           r_i += 1;
-           c_i = 0;
-        }
-
-       Matrix2x2::new(m)
+        let m = self.gen_submatrix(remove_row, remove_col);
+        Matrix2x2::new(m)
     }
 }
 
@@ -101,25 +107,8 @@ impl Matrix4x4 {
                             [0., 0., 0., 1.]] }
     }
 
-    // TODO: need to make this general, right now I am stumped and just copy-paste here.
     pub fn submatrix(&self, remove_row: usize, remove_col: usize) -> Matrix3x3 {
-       let mut m: [[f64; 3]; 3] = [[0.; 3]; 3];
-       let mut r_i = 0;
-       let mut c_i = 0;
-
-       for (ri, row) in self.m.iter().enumerate() {
-            if ri == remove_row { continue; }
-            
-            for (ci, val) in row.iter().enumerate() {
-                if ci == remove_col { continue; }
-                m[r_i][c_i] = *val;
-                c_i += 1;
-            }
-        
-           r_i += 1;
-           c_i = 0;
-        }
-
+       let m = self.gen_submatrix(remove_row, remove_col);
        Matrix3x3::new(m)
     }
 }
