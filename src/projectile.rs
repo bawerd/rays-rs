@@ -20,7 +20,7 @@ pub fn simulate_projectile(canvas: &mut Canvas) {
     let color = Color::new(1., 0., 0.);
 
     while p.pos.y >= 0. {
-        canvas.write_pixel(p.pos.x.floor() as u32, (p.pos.y.floor() as u32) , color);
+        canvas.write_pixel(p.pos.x.floor() as u32, p.pos.y.floor() as u32, color);
         p = tick(&env, p);
     }
 }
