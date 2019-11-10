@@ -9,7 +9,7 @@ use crate::tuples::*;
 macro_rules! mat_impl {
     ($mat_name:ident, $size:expr, $type:ident) => {
 
-        #[derive(Debug, Clone)]
+        #[derive(Debug, Clone, Copy)]
         pub struct $mat_name {
             size: usize,
             m: [[$type; $size]; $size]
@@ -578,5 +578,24 @@ mod tests {
     }
 
 
-}
+    #[test]
+    fn calculating_a_product_by_inverse() {
+        let a = Matrix4x4::new([
+            [3., -9., 7., 3.],
+            [3., -8., 2., -9.],
+            [-4., 4., 4., 1.],
+            [-6., 5., -1., 1.]
+        ]);
+
+        let b = Matrix4x4::new([
+            [8., 2., 2., 2.],
+            [3., -1., 7., 0.],
+            [7., 0., 5., 4.],
+            [6., -2., 0., 5.]
+        ]);
+
+        assert_eq!((a * b) * b.inverse().unwrap(), a);
+    }
+    
+    }
 

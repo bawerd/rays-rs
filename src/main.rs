@@ -11,7 +11,7 @@ fn main() {
 
     projectile::simulate_projectile(&mut c);
     
-    file.write_all(c.to_ppm().as_bytes());
+    file.write_all(c.to_ppm().as_bytes()).unwrap();
 
     println!("image saved in tmp/projectile.ppm");
 }
