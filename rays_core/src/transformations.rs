@@ -32,6 +32,41 @@ pub fn rotation_x(r: f64) -> Matrix4x4 {
     id
 }
 
+pub fn rotation_y(r: f64) -> Matrix4x4 {
+    let mut id = Matrix4x4::identity();
+
+    id[0][0] = f64::cos(r);
+    id[0][2] = f64::sin(r);
+    id[2][0] = -f64::sin(r);
+    id[2][2] = f64::cos(r);
+
+    id
+}
+
+pub fn rotation_z(r: f64) -> Matrix4x4 {
+    let mut id = Matrix4x4::identity();
+
+    id[0][0] = f64::cos(r);
+    id[0][1] = -f64::sin(r);
+    id[1][0] = f64::sin(r);
+    id[1][1] = f64::cos(r);
+
+    id
+}
+
+pub fn shearing(x_y: f64, x_z: f64, y_x: f64, y_z: f64, z_x: f64, z_y: f64) -> Matrix4x4 {
+    let mut id = Matrix4x4::identity();
+
+    id[0][1] = x_y;
+    id[0][2] = x_z;
+    id[1][0] = y_x;
+    id[1][2] = y_z;
+    id[2][0] = z_x;
+    id[2][1] = z_y;
+
+    id
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -120,5 +155,47 @@ mod tests {
         let inv = half_quarter.inverse().unwrap();
 
         assert_eq!(inv * p, point(0., 2_f64.sqrt()/2., -2_f64.sqrt()/2.));
+    }
+
+    #[test]
+    fn rotating_point_around_y_axis() {
+        let p = point(0., 0., 1.);
+        let half_quarter = rotation_y(std::f64::consts::PI / 4_f64);
+        let full_quarter = rotation_y(std::f64::consts::PI / 2_f64);
+
+        assert_eq!(half_quarter * p, point(2_f64.sqrt()/2., 0., 2_f64.sqrt()/2.));
+        assert_eq!(full_quarter * p, point(1., 0., 0.))
+    }
+
+    #[test]
+    fn rotating_point_around_z_axis() {
+        let p = point(0., 1., 0.);
+        let half_quarter = rotation_z(std::f64::consts::PI / 4.);
+        let full_quarter = rotation_z(std::f64::consts::PI / 2.);
+
+        assert_eq!(half_quarter * p, point(-2_f64.sqrt()/2., 2_f64.sqrt()/2., 0.));
+        assert_eq!(full_quarter * p, point(-1., 0., 0.))
+    }
+
+    #[test]
+    fn shearing_all_axes() {
+        let p = point(2., 3., 4.);
+        let transform = shearing(1., 0., 0., 0., 0., 0.);
+        assert_eq!(transform * p, point(5., 3., 4.));
+
+        let transform = shearing(0., 1., 0., 0., 0., 0.);
+        assert_eq!(transform * p, point(6., 3., 4.));
+
+        let transform = shearing(0., 0., 1., 0., 0., 0.);
+        assert_eq!(transform * p, point(2., 5., 4.));
+
+        let transform = shearing(0., 0., 0., 1., 0., 0.);
+        assert_eq!(transform * p, point(2., 7., 4.));
+
+        let transform = shearing(0., 0., 0., 0., 1., 0.);
+        assert_eq!(transform * p, point(2., 3., 6.));
+
+        let transform = shearing(0., 0., 0., 0., 0., 1.);
+        assert_eq!(transform * p, point(2., 3., 7.));
     }
 }
