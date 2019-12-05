@@ -1,6 +1,8 @@
-use std::ops::{Add, Sub, Neg, Mul, Div};
+use std::ops::{Add, Sub, Neg, Mul, Div };
+use std::cmp::PartialEq;
+use crate::util::approx_equal;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy)]
 pub struct Tuple {
     pub x: f64, 
     pub y: f64, 
@@ -95,6 +97,15 @@ impl Div<i32> for Tuple {
     fn div(self, rhs: i32) -> Self {
         let div = rhs as f64; 
         tuple(self.x / div, self.y / div, self.z / div, self.w / div)
+    }
+}
+
+impl PartialEq for Tuple {
+    fn eq(&self, rhs: &Self) -> bool {
+        approx_equal(self.x, rhs.x) && 
+        approx_equal(self.y, rhs.y) && 
+        approx_equal(self.z, rhs.z) && 
+        approx_equal(self.w, rhs.w)
     }
 }
 

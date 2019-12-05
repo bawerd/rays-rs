@@ -1,4 +1,4 @@
-use std::ops::{Index, Mul};
+use std::ops::{Index, IndexMut, Mul};
 use std::cmp::PartialEq;
 
 use crate::util::array_approx_equal;
@@ -20,6 +20,12 @@ macro_rules! mat_impl {
 
             fn index(&self, idx: usize) -> &Self::Output {
                 &self.m[idx] 
+            }
+        }
+
+        impl IndexMut<usize> for $mat_name {
+            fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+                &mut self.m[idx] 
             }
         }
 
@@ -195,11 +201,11 @@ impl Mul<Tuple> for Matrix4x4 {
 
         // dot product of each row and the tuple as a one column matrix
         for (i, row) in self.m.iter().enumerate() {
-            let val = row[0] * rhs.x + 
-                    row[1] * rhs.y +
-                    row[2] * rhs.z +
-                    row[3] * rhs.w;
-            
+            let val =   row[0] * rhs.x + 
+                        row[1] * rhs.y +
+                        row[2] * rhs.z +
+                        row[3] * rhs.w;
+                
             match i {
                 0 => t.x = val,
                 1 => t.y = val,
@@ -597,5 +603,5 @@ mod tests {
         assert_eq!((a * b) * b.inverse().unwrap(), a);
     }
     
-    }
+}
 

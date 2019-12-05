@@ -5,6 +5,7 @@ pub mod color;
 pub mod canvas;
 pub mod image;
 pub mod matrices;
+pub mod transformations;
 
 pub use canvas::Canvas;
 pub use color::Color;
