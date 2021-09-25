@@ -1,5 +1,5 @@
-use std::ops::{Add, Sub, Mul};
 use std::cmp::PartialEq;
+use std::ops::{Add, Mul, Sub};
 
 use crate::util::approx_equal;
 
@@ -7,27 +7,28 @@ use crate::util::approx_equal;
 pub struct Color {
     pub r: f64,
     pub g: f64,
-    pub b: f64
+    pub b: f64,
 }
 
 impl Color {
     pub fn new(r: f64, g: f64, b: f64) -> Self {
-        Color {r, g, b}
+        Color { r, g, b }
     }
 
     pub fn new_black() -> Self {
-        Color { r: 0.0, g: 0.0, b: 0.0 }
+        Color {
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
+        }
     }
-
- 
 }
 
-
-impl PartialEq for Color {   
+impl PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
-        approx_equal(self.r, other.r) &&
-        approx_equal(self.g, other.g) &&
-        approx_equal(self.b, other.b)
+        approx_equal(self.r, other.r)
+            && approx_equal(self.g, other.g)
+            && approx_equal(self.b, other.b)
     }
 }
 
@@ -35,9 +36,7 @@ impl Add for Color {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Color::new(self.r + other.r, 
-                   self.g + other.g, 
-                   self.b + other.b)
+        Color::new(self.r + other.r, self.g + other.g, self.b + other.b)
     }
 }
 
@@ -45,9 +44,7 @@ impl Sub for Color {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        Color::new(self.r - other.r, 
-                   self.g - other.g, 
-                   self.b - other.b)
+        Color::new(self.r - other.r, self.g - other.g, self.b - other.b)
     }
 }
 
@@ -73,9 +70,7 @@ impl Mul for Color {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self {
-         Color::new(self.r * other.r, 
-                    self.g * other.g, 
-                    self.b * other.b)
+        Color::new(self.r * other.r, self.g * other.g, self.b * other.b)
     }
 }
 
@@ -102,7 +97,7 @@ mod tests {
     #[test]
     fn multiplying_color_by_scalar() {
         let c = Color::new(0.2, 0.3, 0.4);
-        
+
         assert_eq!(c * 2, Color::new(0.4, 0.6, 0.8));
     }
 
@@ -113,5 +108,4 @@ mod tests {
 
         assert_eq!(c1 * c2, Color::new(0.9, 0.2, 0.04));
     }
-
 }

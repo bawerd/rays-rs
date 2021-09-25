@@ -1,13 +1,13 @@
-use std::ops::{Add, Sub, Neg, Mul, Div };
-use std::cmp::PartialEq;
 use crate::util::approx_equal;
+use std::cmp::PartialEq;
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Tuple {
-    pub x: f64, 
-    pub y: f64, 
-    pub z: f64, 
-    pub w: f64
+    pub x: f64,
+    pub y: f64,
+    pub z: f64,
+    pub w: f64,
 }
 
 #[allow(dead_code)]
@@ -18,21 +18,22 @@ impl Tuple {
     }
 
     pub fn normalize(&self) -> Vector {
-        vector(self.x / self.magnitude(), self.y / self.magnitude(), self.z / self.magnitude())  
+        vector(
+            self.x / self.magnitude(),
+            self.y / self.magnitude(),
+            self.z / self.magnitude(),
+        )
     }
 
     pub fn dot(&self, rhs: Vector) -> f64 {
-        self.x * rhs.x +
-        self.y * rhs.y +
-        self.z * rhs.z +
-        self.w * rhs.w 
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
     }
 
     pub fn cross(&self, rhs: Vector) -> Vector {
         vector(
             self.y * rhs.z - self.z * rhs.y,
             self.z * rhs.x - self.x * rhs.z,
-            self.x * rhs.y - self.y * rhs.x
+            self.x * rhs.y - self.y * rhs.x,
         )
     }
 }
@@ -46,7 +47,12 @@ impl Add for Tuple {
     type Output = Tuple;
 
     fn add(self, other: Tuple) -> Tuple {
-        tuple(self.x + other.x, self.y + other.y, self.z + other.z, self.w + other.w)
+        tuple(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z,
+            self.w + other.w,
+        )
     }
 }
 
@@ -54,16 +60,21 @@ impl Sub for Tuple {
     type Output = Tuple;
 
     fn sub(self, other: Tuple) -> Tuple {
-        tuple(self.x - other.x, self.y - other.y, self.z - other.z, self.w - other.w)
+        tuple(
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z,
+            self.w - other.w,
+        )
     }
 }
 
 impl Neg for Tuple {
-     type Output = Self;
+    type Output = Self;
 
     fn neg(self) -> Self {
-      tuple(-self.x, -self.y, -self.z, -self.w)
-    }   
+        tuple(-self.x, -self.y, -self.z, -self.w)
+    }
 }
 
 impl Mul<f64> for Tuple {
@@ -95,29 +106,29 @@ impl Div<i32> for Tuple {
     type Output = Self;
 
     fn div(self, rhs: i32) -> Self {
-        let div = rhs as f64; 
+        let div = rhs as f64;
         tuple(self.x / div, self.y / div, self.z / div, self.w / div)
     }
 }
 
 impl PartialEq for Tuple {
     fn eq(&self, rhs: &Self) -> bool {
-        approx_equal(self.x, rhs.x) && 
-        approx_equal(self.y, rhs.y) && 
-        approx_equal(self.z, rhs.z) && 
-        approx_equal(self.w, rhs.w)
+        approx_equal(self.x, rhs.x)
+            && approx_equal(self.y, rhs.y)
+            && approx_equal(self.z, rhs.z)
+            && approx_equal(self.w, rhs.w)
     }
 }
 
-pub fn tuple(x: f64, y:f64, z:f64, w:f64 ) -> Tuple {
+pub fn tuple(x: f64, y: f64, z: f64, w: f64) -> Tuple {
     Tuple { x, y, z, w }
 }
 
-pub fn point(x: f64, y:f64, z:f64) -> Point {
+pub fn point(x: f64, y: f64, z: f64) -> Point {
     Point { x, y, z, w: 1.0 }
 }
 
-pub fn vector(x: f64, y:f64, z:f64) -> Vector {
+pub fn vector(x: f64, y: f64, z: f64) -> Vector {
     Tuple { x, y, z, w: 0.0 }
 }
 
@@ -133,7 +144,7 @@ mod tests {
     #[test]
     fn tuple_is_a_point() {
         /* A tuple with w=1 is a point */
-        let a = tuple(4.3, -4.2, 3.1, 1.0); 
+        let a = tuple(4.3, -4.2, 3.1, 1.0);
         assert_eq!(a.x, 4.3);
         assert_eq!(a.y, -4.2);
         assert_eq!(a.z, 3.1);
@@ -143,17 +154,17 @@ mod tests {
     #[test]
     fn tuple_is_a_vector() {
         /* A tuple with w=0 is a vector */
-        let a = tuple(4.3, -4.2, 3.1, 0.0); 
+        let a = tuple(4.3, -4.2, 3.1, 0.0);
         assert_eq!(a.x, 4.3);
         assert_eq!(a.y, -4.2);
         assert_eq!(a.z, 3.1);
         assert_eq!(a.w, 0.0);
     }
 
-     #[test]
+    #[test]
     fn create_point() {
         /* Creates tuples with w=1 */
-        let a = point(4.0, -4.0, 3.0); 
+        let a = point(4.0, -4.0, 3.0);
         let b = tuple(4.0, -4.0, 3.0, 1.0);
         assert_eq!(a.x, 4.0);
         assert_eq!(a.y, -4.0);
@@ -162,10 +173,10 @@ mod tests {
         assert_eq!(a, b);
     }
 
-       #[test]
+    #[test]
     fn create_vector() {
         /* Creates tuples with w=0 */
-        let a = vector(4.0, -4.0, 3.0); 
+        let a = vector(4.0, -4.0, 3.0);
         let b = tuple(4.0, -4.0, 3.0, 0.0);
         assert_eq!(a.x, 4.0);
         assert_eq!(a.y, -4.0);
@@ -177,7 +188,7 @@ mod tests {
     #[test]
     fn add_tuples() {
         /* Adding two tuples */
-        let a = tuple(3.0, -2.0, 5.0, 1.0); 
+        let a = tuple(3.0, -2.0, 5.0, 1.0);
         let b = tuple(-2.0, 3.0, 1.0, 0.0);
         assert_eq!(a + b, tuple(1.0, 1.0, 6.0, 1.0));
     }
@@ -185,7 +196,7 @@ mod tests {
     #[test]
     fn subtracting_two_points() {
         /* Subtracting two points */
-        let p1 = point(3.0, 2.0, 1.0); 
+        let p1 = point(3.0, 2.0, 1.0);
         let p2 = point(5.0, 6.0, 7.0);
         assert_eq!(p1 - p2, vector(-2.0, -4.0, -6.0));
     }
@@ -193,7 +204,7 @@ mod tests {
     #[test]
     fn subtracting_vector_from_point() {
         /* Subtracting two points */
-        let p1 = point(3.0, 2.0, 1.0); 
+        let p1 = point(3.0, 2.0, 1.0);
         let v = vector(5.0, 6.0, 7.0);
         assert_eq!(p1 - v, point(-2.0, -4.0, -6.0));
     }
@@ -201,7 +212,7 @@ mod tests {
     #[test]
     fn subtracting_two_vectors() {
         /* Subtracting two points */
-        let p1 = vector(3.0, 2.0, 1.0); 
+        let p1 = vector(3.0, 2.0, 1.0);
         let p2 = vector(5.0, 6.0, 7.0);
         assert_eq!(p1 - p2, vector(-2.0, -4.0, -6.0));
     }
@@ -209,7 +220,7 @@ mod tests {
     #[test]
     fn subtracting_vector_from_zero_vector() {
         /* Subtracting two points */
-        let zero = vector(0.0, 0.0, 0.0); 
+        let zero = vector(0.0, 0.0, 0.0);
         let v = vector(1.0, -2.0, 3.0);
         let sub = zero - v;
         assert_eq!(sub, vector(-1.0, 2.0, -3.0));
@@ -273,7 +284,7 @@ mod tests {
 
         let v = vector(1.0, 2.0, 3.0);
         let div = 14.0_f64.sqrt();
-        assert_eq!(v.normalize(), vector(1.0/div, 2.0/div, 3.0/div));
+        assert_eq!(v.normalize(), vector(1.0 / div, 2.0 / div, 3.0 / div));
         assert!(approx_equal(v.normalize().magnitude(), 1.0));
     }
 
@@ -282,7 +293,7 @@ mod tests {
         /* The dot product of two tuples */
         let a = vector(1.0, 2.0, 3.0);
         let b = vector(2.0, 3.0, 4.0);
-    
+
         assert_eq!(a.dot(b), 20.0);
     }
 
@@ -291,7 +302,8 @@ mod tests {
         /* The cross product of two vectors */
         let a = vector(1.0, 2.0, 3.0);
         let b = vector(2.0, 3.0, 4.0);
-    
+
         assert_eq!(a.cross(b), vector(-1.0, 2.0, -1.0));
     }
 }
+

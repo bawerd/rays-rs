@@ -1,6 +1,3 @@
-
-
 pub enum ImageFormat {
-    PPM
+    PPM,
 }
-

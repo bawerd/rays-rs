@@ -1,4 +1,3 @@
-use crate::tuples::*;
 use crate::matrices::*;
 
 pub fn translation(x: f64, y: f64, z: f64) -> Matrix4x4 {
@@ -70,6 +69,8 @@ pub fn shearing(x_y: f64, x_z: f64, y_x: f64, y_z: f64, z_x: f64, z_y: f64) -> M
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tuples::point;
+    use crate::tuples::vector;
 
     #[test]
     fn multiplying_by_translation_matrix() {
@@ -80,7 +81,7 @@ mod tests {
         assert_eq!(t * p, t_p);
     }
 
-   #[test]
+    #[test]
     fn multiplying_by_inverse_translation_matrix() {
         let t = translation(5., -3., 2.);
         let p = point(-3., 4., 5.);
@@ -91,7 +92,7 @@ mod tests {
         assert_eq!(inv * p, inverse_p);
     }
 
-   #[test]
+    #[test]
     fn translation_does_not_affect_vectors() {
         let t = translation(5., -3., 2.);
         let v = vector(-3., 4., 5.);
@@ -99,7 +100,7 @@ mod tests {
         assert_eq!(t * v, v);
     }
 
-   #[test]
+    #[test]
     fn scaling_point() {
         let t = scaling(2., 3., 4.);
         let p = point(-4., 6., 8.);
@@ -108,8 +109,7 @@ mod tests {
         assert_eq!(t * p, scaled_p);
     }
 
-
-   #[test]
+    #[test]
     fn scaling_vector() {
         let t = scaling(2., 3., 4.);
         let v = vector(-4., 6., 8.);
@@ -118,7 +118,7 @@ mod tests {
         assert_eq!(t * v, scaled_v);
     }
 
-   #[test]
+    #[test]
     fn multiply_by_inverse_matrix() {
         let t = scaling(2., 3., 4.);
         let inv = t.inverse().unwrap();
@@ -144,7 +144,10 @@ mod tests {
         let half_quarter = rotation_x(std::f64::consts::PI / 4.);
         let full_quarter = rotation_x(std::f64::consts::PI / 2_f64);
 
-        assert_eq!(half_quarter * p, point(0., 2_f64.sqrt()/2., 2_f64.sqrt()/2.));
+        assert_eq!(
+            half_quarter * p,
+            point(0., 2_f64.sqrt() / 2., 2_f64.sqrt() / 2.)
+        );
         assert_eq!(full_quarter * p, point(0., 0., 1.))
     }
 
@@ -154,7 +157,7 @@ mod tests {
         let half_quarter = rotation_x(std::f64::consts::PI / 4.);
         let inv = half_quarter.inverse().unwrap();
 
-        assert_eq!(inv * p, point(0., 2_f64.sqrt()/2., -2_f64.sqrt()/2.));
+        assert_eq!(inv * p, point(0., 2_f64.sqrt() / 2., -2_f64.sqrt() / 2.));
     }
 
     #[test]
@@ -163,7 +166,10 @@ mod tests {
         let half_quarter = rotation_y(std::f64::consts::PI / 4_f64);
         let full_quarter = rotation_y(std::f64::consts::PI / 2_f64);
 
-        assert_eq!(half_quarter * p, point(2_f64.sqrt()/2., 0., 2_f64.sqrt()/2.));
+        assert_eq!(
+            half_quarter * p,
+            point(2_f64.sqrt() / 2., 0., 2_f64.sqrt() / 2.)
+        );
         assert_eq!(full_quarter * p, point(1., 0., 0.))
     }
 
@@ -173,7 +179,10 @@ mod tests {
         let half_quarter = rotation_z(std::f64::consts::PI / 4.);
         let full_quarter = rotation_z(std::f64::consts::PI / 2.);
 
-        assert_eq!(half_quarter * p, point(-2_f64.sqrt()/2., 2_f64.sqrt()/2., 0.));
+        assert_eq!(
+            half_quarter * p,
+            point(-2_f64.sqrt() / 2., 2_f64.sqrt() / 2., 0.)
+        );
         assert_eq!(full_quarter * p, point(-1., 0., 0.))
     }
 
@@ -199,3 +208,4 @@ mod tests {
         assert_eq!(transform * p, point(2., 3., 7.));
     }
 }
+
